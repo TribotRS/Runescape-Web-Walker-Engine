@@ -27,7 +27,7 @@ public class PathObjectHandler implements Loggable {
     private PathObjectHandler(){
         sortedOptions = new TreeSet<>(
 		        Arrays.asList("Enter", "Cross", "Pass", "Open", "Close", "Walk-through", "Use", "Pass-through", "Exit",
-                "Walk-Across", "Go-through", "Walk-across", "Climb", "Climb-up", "Climb-down", "Climb-over", "Climb over", "Climb-into", "Climb-through",
+                "Walk-Across", "Go-through", "Walk-across", "Climb", "Climb-up", "Climb-down", "Climb-over", "Climb over", "Climb-into", "Climb-through", "Climb through",
                 "Board", "Jump-from", "Jump-across", "Jump-to", "Squeeze-through", "Jump-over", "Pay-toll(10gp)", "Step-over", "Walk-down", "Walk-up","Walk-Up", "Travel", "Get in",
                 "Investigate", "Operate", "Climb-under","Jump","Crawl-down","Crawl-through","Activate","Push","Squeeze-past","Walk-Down",
                 "Swing-on", "Climb up", "Ascend", "Descend","Channel","Teleport","Pass-Through","Jump-up","Jump-down","Swing across", "Climb Up", "Climb Down", "Jump-Down"));
@@ -182,6 +182,12 @@ public class PathObjectHandler implements Loggable {
             @Override
             boolean isSpecialLocation(PathAnalyzer.DestinationDetails destinationDetails) {
                 return destinationDetails.getNextTile() != null && destinationDetails.getNextTile().getRSTile().equals(new RSTile(3182, 9611, 0));
+            }
+        }),
+        ARDOUGNE_LOCKED_HOUSE("Door", "Pick-lock", new RSTile(2611, 3316, 0), new SpecialCondition() {
+            @Override
+            boolean isSpecialLocation(PathAnalyzer.DestinationDetails destinationDetails) {
+                return destinationDetails.getAssumed().equals(new RSTile(2611, 3316, 0)) && destinationDetails.getDestination().getRSTile().equals(new RSTile(2610, 3316, 0));
             }
         });
 
@@ -379,6 +385,20 @@ public class PathObjectHandler implements Loggable {
                     ladder.setClickHeight(General.random(-100, -40));
                     if(InteractionHelper.click(ladder, "Climb Down")){
                         WaitFor.condition(10000, () -> Game.getPlane() == 0 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+                    }
+                    break;
+                case ARDOUGNE_LOCKED_HOUSE:
+                    for (int i = 0; i < General.random(10, 15); i++) {
+                        if (!clickOnObject(object, specialObject.getAction())) {
+                            continue;
+                        }
+                        if (Player.getPosition().distanceTo(specialObject.getLocation()) > 1) {
+                            WaitFor.condition(General.random(3000, 4000), () -> Player.getPosition().distanceTo(specialObject.getLocation()) <= 1 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+                        }
+                        if (Player.getPosition().equals(specialObject.getLocation())) {
+                            successfulClick = true;
+                            break;
+                        }
                     }
                     break;
             }
@@ -665,11 +685,11 @@ public class PathObjectHandler implements Loggable {
     }
     private static boolean useBladeOnWeb(RSObject web){
         if(!Game.isUptext("->")){
-            RSItem[] slashable = Inventory.find(Filters.Items.nameContains("whip", "sword", "dagger", "claws", "scimitar", " axe", "knife", "halberd", "machete", "rapier"));
+            RSItem[] slashable = Inventory.find(Filters.Items.nameEquals("Knife").or(Filters.Items.nameContains("whip", "sword", "dagger", "claws", "scimitar", " axe", "halberd", "machete", "rapier").and(Filters.Items.nameNotEquals("Swordfish"))));
             if(slashable.length == 0 || !slashable[0].click("Use"))
                 return false;
         }
-        return InteractionHelper.click(web, Game.getUptext());
+        return InteractionHelper.click(web, "Use " + Game.getSelectedItemName() + " -> " + web.getDefinition().getName());
     }
 
 }
