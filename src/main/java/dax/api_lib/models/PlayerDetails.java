@@ -31,6 +31,8 @@ public class PlayerDetails {
             192,
             199,
             357,
+            386,//smoke dungeon boss room
+            1990,
             2310,
             2328,
             3534,
@@ -51,6 +53,7 @@ public class PlayerDetails {
             5810,
             6104,
             7255,
+            7928, //kourend elite diary
             9016,
             10150, //we've paid 1m to Andras for free boat rides to Slepe if this is 1
             13903, //Sleeping Giants quest
