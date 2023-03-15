@@ -62,6 +62,8 @@ public class WalkerEngine implements Loggable{
         if (path.size() == 0) {
             log("Path is empty");
             return false;
+        } else {
+            log("Got path: " + path);
         }
 
 
@@ -310,20 +312,29 @@ public class WalkerEngine implements Loggable{
     private boolean handleTeleports(List<RSTile> path) {
         RSTile startPosition = path.get(0);
         RSTile playerPosition = Player.getPosition();
-        if(PathAnalyzer.furthestReachableTile(path) != null){
+        if(playerPosition.getPosition().distanceTo(startPosition) < 10) {
+            log("We are less than 10 tiles away from the start tile; skipping teleports.");
             return true;
         }
-        if(playerPosition.getPosition().distanceTo(startPosition) < 10)
+        PathAnalyzer.DestinationDetails destinationDetails = PathAnalyzer.furthestReachableTile(path);
+        if(destinationDetails != null){
+            log("We are already somewhere along the path. Destination details: " + destinationDetails);
             return true;
+        }
         if(Banking.isBankScreenOpen())
             Banking.close();
         Teleport targetTeleport = Arrays.stream(Teleport.values()).filter(t ->
                 !DaxWalker.getBlacklist().contains(t) && t.isAtTeleportSpot(startPosition) &&
                         !t.isAtTeleportSpot(playerPosition) && t.getRequirement().satisfies())
                 .min(Comparator.comparingInt(Teleport::getMoveCost)).orElse(null);
-        return targetTeleport == null || (targetTeleport.trigger() && WaitFor.condition(General.random(5000, 20000),
-                        () -> startPosition.distanceTo(Player.getPosition()) < 10 ?
-                                WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS);
+        if(targetTeleport == null){
+            log("No teleports are necessary for this path.");
+            return true;
+        }
+        log("Using teleport: " + targetTeleport + " with cost: " + targetTeleport.getMoveCost());
+        return targetTeleport.trigger() && (WaitFor.condition(General.random(5000, 20000),
+                () -> startPosition.distanceTo(Player.getPosition()) < 10 ?
+                        WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS);
     }
 
 }

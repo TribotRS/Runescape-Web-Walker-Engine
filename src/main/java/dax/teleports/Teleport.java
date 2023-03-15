@@ -850,7 +850,7 @@ public enum Teleport {
 				Walking.walkTo(Player.getPosition());//exit chat by walking to our tile
 				WaitFor.milliseconds(200, 600);
 			}
-			if(!minigame.teleport()){
+			if(!minigame.teleport() || !Timing.waitCondition(() -> Player.getAnimation() > 0, 3500)){
 				Walking.walkTo(Player.getPosition());//fix niche scenarios by walking to our tile
 				WaitFor.milliseconds(200, 600);
 				return false;
@@ -860,7 +860,7 @@ public enum Teleport {
 			}
 			return true;
 		};
-		this.teleportLimit = TeleportConstants.LEVEL_20_WILDERNESS_LIMIT;
+		this.teleportLimit = TeleportConstants.LEVEL_0_WILDERNESS_LIMIT;
 		this.requiresMembers = requiresMembers;
 		this.canBeUsedInPvpWorlds = false;
 	}
@@ -986,9 +986,11 @@ public enum Teleport {
 	}
 
 	private static boolean canUseMinigameTeleport(){
-		if(RSVarBit.get(14022).getValue() == 1)//can't minigame teleport when we are at Duel Arena
+		if(RSVarBit.get(14022).getValue() == 1)//can't minigame teleport when we are at PvP Arena
 			return false;
 		if(RSVarBit.get(541).getValue() == 1)
+			return false;
+		if(Game.isInInstance())
 			return false;
 		return !Player.getRSPlayer().isInCombat() &&
 				((long) Game.getSetting(888) * 60 * 1000) + (20 * 60 * 1000) < Timing.currentTimeMillis();
