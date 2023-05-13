@@ -177,6 +177,7 @@ public class NavigationSpecialCase implements Loggable {
         FAIRY_RING_MORT_MYRE_SWAMP(3469, 3431, 0),
         FAIRY_RING_MOUNT_KARUULM(1302, 3762, 0),
         FAIRY_RING_MUDSKIPPER_POINT(2996, 3114, 0),
+        FAIRY_RING_MYREQUE_HIDEOUT(3447, 9824, 0),
         FAIRY_RING_NORTH_OF_NARDAH(3423, 3016, 0),
         FAIRY_RING_PISCATORIS_HUNTER_AREA(2319, 3619, 0),
         FAIRY_RING_POISON_WASTE(2213, 3099, 0),
@@ -269,7 +270,13 @@ public class NavigationSpecialCase implements Loggable {
 
         BOATY_SLEPE(3661, 3277, 0),
         BOATY_ICYENE_GRAVEYARD(3685, 3174, 0),
-        BOATY_BURGH(3525, 3170, 0)
+        BOATY_BURGH(3525, 3170, 0),
+
+        LOKAR_SEARUNNER_RELLEKKA(2620, 3692, 0),
+        LOKAR_SEARUNNER_PIRATES_COVE(2213, 3794, 0),
+
+        CAPTAIN_BENTLEY_PIRATES_COVE(2222, 3797, 2),
+        CAPTAIN_BENTLEY_LUNAR_ISLE(2138, 3899, 2)
         ;
 
         int x, y, z;
@@ -812,6 +819,8 @@ public class NavigationSpecialCase implements Loggable {
                 return FairyRing.takeFairyRing(FairyRing.Locations. MOUNT_KARUULM);
             case FAIRY_RING_MUDSKIPPER_POINT:
                 return FairyRing.takeFairyRing(FairyRing.Locations.MUDSKIPPER_POINT);
+            case FAIRY_RING_MYREQUE_HIDEOUT:
+                return FairyRing.takeFairyRing(FairyRing.Locations.MYREQUE_HIDEOUT);
             case FAIRY_RING_NORTH_OF_NARDAH:
                 return FairyRing.takeFairyRing(FairyRing.Locations.NORTH_OF_NARDAH);
             case FAIRY_RING_PISCATORIS_HUNTER_AREA:
@@ -1062,6 +1071,25 @@ public class NavigationSpecialCase implements Loggable {
                 return handleBoaty("Icyene Graveyard.", specialLocation.getRSTile());
             case BOATY_SLEPE:
                 return handleBoaty("Slepe.", specialLocation.getRSTile());
+
+            case CAPTAIN_BENTLEY_PIRATES_COVE:
+            case CAPTAIN_BENTLEY_LUNAR_ISLE:
+                return NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Captain Bentley"),"Travel") &&
+                        WaitFor.condition(15000,() -> specialLocation.getRSTile().distanceTo(Player.getPosition()) < 10
+                                ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+            case LOKAR_SEARUNNER_RELLEKKA:
+                return NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Lokar Searunner"),"Rellekka") &&
+                        WaitFor.condition(15000,() -> specialLocation.getRSTile().distanceTo(Player.getPosition()) < 10
+                                ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+            case LOKAR_SEARUNNER_PIRATES_COVE:
+                return NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Lokar Searunner"),"Pirate's Cove") &&
+                        WaitFor.condition(15000,() -> {
+                            if(NPCInteraction.isConversationWindowUp()){
+                                NPCInteraction.handleConversationRegex("That's fine.*");
+                            }
+                            return specialLocation.getRSTile().distanceTo(Player.getPosition()) < 10
+                                    ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE;
+                        }) == WaitFor.Return.SUCCESS;
         }
 
         return false;
