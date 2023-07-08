@@ -11,7 +11,9 @@ import dax.walker_engine.navigation_utils.ShipUtils;
 import org.tribot.api.ScriptCache;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api2007.Interfaces;
+import org.tribot.api2007.Objects;
 import org.tribot.api2007.Player;
+import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSTile;
 
 import java.util.*;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class DaxWalker implements Loggable {
 
     private final Map<RSTile, Teleport> map;
+    private final Map<WalkerPreferences, Integer> walkerPreferences;
     public static DaxWalker getInstance() {
         Map<String, Object> cache = ScriptCache.get();
         DaxWalker daxWalker = (DaxWalker)cache.get("daxwalker");
@@ -39,9 +42,28 @@ public class DaxWalker implements Loggable {
         globalWalkingCondition = () -> WalkingCondition.State.CONTINUE_WALKER;
 
         map = new ConcurrentHashMap<>();
+        walkerPreferences = new ConcurrentHashMap<>();
+        Arrays.stream(WalkerPreferences.values()).forEach(p -> walkerPreferences.put(p, 0));
         for (Teleport teleport : Teleport.values()) {
             map.put(teleport.getLocation(), teleport);
         }
+    }
+
+    public static void enableWalkerPreference(WalkerPreferences... preferences){
+        for(WalkerPreferences preference: preferences){
+            getInstance().walkerPreferences.replace(preference, 1);
+        }
+    }
+    public static void disableWalkerPreference(WalkerPreferences... preferences){
+        for(WalkerPreferences preference: preferences){
+            getInstance().walkerPreferences.replace(preference, 0);
+        }
+    }
+    public static boolean getWalkerPreference(WalkerPreferences preference){
+        return getInstance().walkerPreferences.get(preference) == 1;
+    }
+    public static List<IntPair> getWalkerPreferences(){
+        return getInstance().walkerPreferences.keySet().stream().map(p -> new IntPair(p.ordinal(), getInstance().walkerPreferences.get(p))).collect(Collectors.toList());
     }
 
     public static WalkingCondition getGlobalWalkingCondition() {
@@ -72,6 +94,9 @@ public class DaxWalker implements Loggable {
         RSTile start = Player.getPosition();
         if (start.equals(destination)) {
             return true;
+        }
+        if(Objects.getAt(start, Filters.Objects.nameEquals("Fairy ring")).length > 0){
+            start = start.translate(0, 1);
         }
 
         PlayerDetails playerDetails = PlayerDetails.generate();
@@ -122,7 +147,12 @@ public class DaxWalker implements Loggable {
 
         List<BankPathRequestPair> pathRequestPairs = getInstance().getBankPathTeleports(playerDetails.isMember(), isInPvpWorld);
 
-        pathRequestPairs.add(new BankPathRequestPair(Point3D.fromPositionable(Player.getPosition()),null));
+        RSTile start = Player.getPosition();
+        if(Objects.getAt(start, Filters.Objects.nameEquals("Fairy ring")).length > 0){
+            start = start.translate(0, 1);
+        }
+
+        pathRequestPairs.add(new BankPathRequestPair(Point3D.fromPositionable(start),null));
 
         List<PathResult> pathResults = WebWalkerServerApi.getInstance().getBankPaths(new BulkBankPathRequest(playerDetails,pathRequestPairs));
 

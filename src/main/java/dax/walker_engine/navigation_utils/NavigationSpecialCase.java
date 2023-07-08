@@ -70,6 +70,9 @@ public class NavigationSpecialCase implements Loggable {
         SPIRIT_TREE_STRONGHOLD (2461, 3444, 0),
         SPIRIT_TREE_KHAZARD (2555, 3259, 0),
         SPIRIT_TREE_VILLAGE (2542, 3170, 0),
+        SPIRIT_TREE_FELDIP(2488, 2850, 0),
+        SPIRIT_TREE_PRIF (3274, 6123, 0),
+
 
         GNOME_TREE_GLIDER (GnomeGlider.Location.TA_QUIR_PRIW.getX(), GnomeGlider.Location.TA_QUIR_PRIW.getY(), GnomeGlider.Location.TA_QUIR_PRIW.getZ()),
         AL_KHARID_GLIDER (
@@ -272,11 +275,23 @@ public class NavigationSpecialCase implements Loggable {
         BOATY_ICYENE_GRAVEYARD(3685, 3174, 0),
         BOATY_BURGH(3525, 3170, 0),
 
+        LIGHTHOUSE_LADDER(2510, 3644, 0),
+        LIGHTHOUSE_UNDERGROUND(2518, 9994, 0),
+
         LOKAR_SEARUNNER_RELLEKKA(2620, 3692, 0),
         LOKAR_SEARUNNER_PIRATES_COVE(2213, 3794, 0),
 
         CAPTAIN_BENTLEY_PIRATES_COVE(2222, 3797, 2),
-        CAPTAIN_BENTLEY_LUNAR_ISLE(2138, 3899, 2)
+        CAPTAIN_BENTLEY_LUNAR_ISLE(2138, 3899, 2),
+
+        PRIF_MINE_INSIDE(3302, 12454, 0),
+        PRIF_MINE_OUTSIDE(3271, 6051, 0),
+
+        SHILO_CART_FROM_BRIMHAVEN(2777, 3214, 0),
+        SHILO_CART_FROM_SHILO(2834, 2951, 0),
+
+        KILLERWAT_PLANE_ENTRANCE(3110, 3363, 2),
+        KILLERWAT_PLANE_EXIT(2677, 5214, 2)
         ;
 
         int x, y, z;
@@ -418,6 +433,8 @@ public class NavigationSpecialCase implements Loggable {
             case SPIRIT_TREE_STRONGHOLD: return SpiritTree.to(SpiritTree.Location.SPIRIT_TREE_STRONGHOLD);
             case SPIRIT_TREE_KHAZARD: return SpiritTree.to(SpiritTree.Location.SPIRIT_TREE_KHAZARD);
             case SPIRIT_TREE_VILLAGE: return SpiritTree.to(SpiritTree.Location.SPIRIT_TREE_VILLAGE);
+            case SPIRIT_TREE_FELDIP: return SpiritTree.to(SpiritTree.Location.SPIRIT_TREE_FELDIP);
+            case SPIRIT_TREE_PRIF: return SpiritTree.to(SpiritTree.Location.SPIRIT_TREE_PRIFDDINAS);
 
             case GNOME_TREE_GLIDER: return GnomeGlider.to(GnomeGlider.Location.TA_QUIR_PRIW);
             case AL_KHARID_GLIDER: return GnomeGlider.to(GnomeGlider.Location.KAR_HEWO);
@@ -1072,6 +1089,12 @@ public class NavigationSpecialCase implements Loggable {
             case BOATY_SLEPE:
                 return handleBoaty("Slepe.", specialLocation.getRSTile());
 
+
+            case LIGHTHOUSE_LADDER:
+            case LIGHTHOUSE_UNDERGROUND:
+                return clickObject(Filters.Objects.nameEquals("Iron ladder"), "Climb",
+                        () -> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+
             case CAPTAIN_BENTLEY_PIRATES_COVE:
             case CAPTAIN_BENTLEY_LUNAR_ISLE:
                 return NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Captain Bentley"),"Travel") &&
@@ -1090,6 +1113,32 @@ public class NavigationSpecialCase implements Loggable {
                             return specialLocation.getRSTile().distanceTo(Player.getPosition()) < 10
                                     ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE;
                         }) == WaitFor.Return.SUCCESS;
+
+            case PRIF_MINE_INSIDE:
+                return clickObject(Filters.Objects.nameEquals("Cave entrance"), "Enter",
+                        () -> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+            case PRIF_MINE_OUTSIDE:
+                return clickObject(Filters.Objects.nameEquals("Steps"), "Exit",
+                        () -> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+
+
+            case SHILO_CART_FROM_BRIMHAVEN:
+            case SHILO_CART_FROM_SHILO:
+                return NPCInteraction.clickNpc(Filters.NPCs.actionsContains("Pay-fare"), "Pay-fare") &&
+                        WaitFor.condition(15000,() -> specialLocation.getRSTile().distanceTo(Player.getPosition()) < 10
+                                ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+
+            case KILLERWAT_PLANE_ENTRANCE:
+            case KILLERWAT_PLANE_EXIT:
+                if(NPCInteraction.isConversationWindowUp()){
+                    NPCInteraction.handleConversation("Yes I want to go in and don't show me this message again.", "Thanks for the warning, but I'm not scared of any monster.");
+                    if(WaitFor.condition(4500, () -> Player.getPosition().equals(specialLocation.getRSTile()) ?
+                            WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS){
+                        return true;
+                    }
+                }
+                return clickObject(Filters.Objects.nameEquals("Interdimensional rift", "Portal Home"), "Enter",
+                        () -> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
         }
 
         return false;
