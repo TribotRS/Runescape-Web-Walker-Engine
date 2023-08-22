@@ -317,7 +317,7 @@ public class WalkerEngine implements Loggable{
             return true;
         }
         PathAnalyzer.DestinationDetails destinationDetails = PathAnalyzer.furthestReachableTile(path);
-        if(destinationDetails != null && !destinationDetails.getDestination().getRSTile().equals(startPosition)){
+        if(destinationDetails != null && destinationDetails.getAssumed().isOnScreen()){
             log("We are already somewhere along the path. Destination details: " + destinationDetails);
             return true;
         }
@@ -332,7 +332,7 @@ public class WalkerEngine implements Loggable{
             return true;
         }
         log("Using teleport: " + targetTeleport + " with cost: " + targetTeleport.getMoveCost());
-        return targetTeleport.trigger() && (WaitFor.condition(General.random(5000, 20000),
+        return targetTeleport.trigger() && (WaitFor.condition(General.random(targetTeleport.getMinWaitTime(), targetTeleport.getMaxWaitTime()),
                 () -> startPosition.distanceTo(Player.getPosition()) < 10 ?
                         WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS);
     }

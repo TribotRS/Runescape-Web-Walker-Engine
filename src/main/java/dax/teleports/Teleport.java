@@ -327,14 +327,14 @@ public enum Teleport {
 
 	SKILLS_FARMING_GUILD_OUTSIDE (
 			35, new RSTile(1248, 3719, 0),
-			() -> WearableItemTeleport.has(WearableItemTeleport.SKILLS_FILTER) && (RSVarBit.get(4895).getValue() < 600 || Skills.SKILLS.FARMING.getActualLevel() < 45),
+			() -> hasBeenToZeah() && WearableItemTeleport.has(WearableItemTeleport.SKILLS_FILTER) && (RSVarBit.get(4895).getValue() < 600 || Skills.SKILLS.FARMING.getActualLevel() < 45),
 			() -> teleportWithScrollInterface(WearableItemTeleport.SKILLS_FILTER, ".*Farming.*"),
 			TeleportConstants.LEVEL_30_WILDERNESS_LIMIT
 	),
 
 	SKILLS_FARMING_GUILD_INSIDE (
 			35, new RSTile(1249, 3727, 0),
-			() -> WearableItemTeleport.has(WearableItemTeleport.SKILLS_FILTER)
+			() -> hasBeenToZeah() && WearableItemTeleport.has(WearableItemTeleport.SKILLS_FILTER)
 					&& RSVarBit.get(4895).getValue() >= 600 && Skills.SKILLS.FARMING.getActualLevel() >= 45,
 			() -> teleportWithScrollInterface(WearableItemTeleport.SKILLS_FILTER, ".*Farming.*"),
 			TeleportConstants.LEVEL_30_WILDERNESS_LIMIT
@@ -788,6 +788,8 @@ public enum Teleport {
 	private final TeleportLimit teleportLimit;
 	private final boolean requiresMembers;
 	private final boolean canBeUsedInPvpWorlds;
+	private final int minWaitTime;
+	private final int maxWaitTime;
 
 	Teleport(int moveCost, RSTile location, Requirement requirement, Action action) {
 		this(moveCost, location, requirement, action, true);
@@ -801,6 +803,8 @@ public enum Teleport {
 		this.teleportLimit = TeleportConstants.LEVEL_20_WILDERNESS_LIMIT;
 		this.requiresMembers = requiresMembers;
 		this.canBeUsedInPvpWorlds = true;
+		this.minWaitTime = 5000;
+		this.maxWaitTime = 20000;
 	}
 
 	Teleport(int moveCost, RSTile location, Requirement requirement, Action action, TeleportLimit limit) {
@@ -815,6 +819,8 @@ public enum Teleport {
 		this.teleportLimit = limit;
 		this.requiresMembers = requiresMembers;
 		this.canBeUsedInPvpWorlds = true;
+		this.minWaitTime = 5000;
+		this.maxWaitTime = 20000;
 	}
 
 	Teleport(int movecost, TeleportScrolls scroll) {
@@ -825,6 +831,8 @@ public enum Teleport {
 		this.teleportLimit = TeleportConstants.LEVEL_20_WILDERNESS_LIMIT;
 		this.requiresMembers = true;
 		this.canBeUsedInPvpWorlds = true;
+		this.minWaitTime = 5000;
+		this.maxWaitTime = 20000;
 	}
 
 	Teleport(Minigame minigame, RSTile location, String... chatOptions){
@@ -863,6 +871,8 @@ public enum Teleport {
 		this.teleportLimit = TeleportConstants.LEVEL_0_WILDERNESS_LIMIT;
 		this.requiresMembers = requiresMembers;
 		this.canBeUsedInPvpWorlds = false;
+		this.minWaitTime = 20000;
+		this.maxWaitTime = 30000;
 	}
 
 	public int getMoveCost() {
@@ -906,6 +916,13 @@ public enum Teleport {
 				})
 				.map(Teleport::getLocation)
 				.collect(Collectors.toList());
+	}
+
+	public int getMinWaitTime(){
+		return minWaitTime;
+	}
+	public int getMaxWaitTime(){
+		return maxWaitTime;
 	}
 
 	private interface Action {

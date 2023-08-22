@@ -323,9 +323,9 @@ public class NavigationSpecialCase implements Loggable {
         switch (specialLocation){
 
             case BRIMHAVEN_DUNGEON:
-                if (Game.getSetting(393) != 1){
-                    if (!InteractionHelper.click(InteractionHelper.getRSNPC(Filters.NPCs.nameEquals("Saniboch")), "Pay")) {
-                        getInstance().log("Could not pay saniboch");
+                if (RSVarBit.get(5628).getValue() == 0 && RSVarBit.get(8122).getValue() == 0){
+                    if (!clickObject(Filters.Objects.nameEquals("Dungeon entrance"), "Enter", () -> NPCInteraction.isConversationWindowUp() ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE)) {
+                        getInstance().log("Could not pay to enter the dungeon");
                         break;
                     }
                     NPCInteraction.handleConversation("Yes","Pay 875 coins to enter once");
@@ -443,8 +443,8 @@ public class NavigationSpecialCase implements Loggable {
             case GANDIUS_GLIDER: return GnomeGlider.to(GnomeGlider.Location.GANDIUS);
 
             case ZANARIS_RING:
-                if (Equipment.getCount(772) == 0){
-                    if (!InteractionHelper.click(InteractionHelper.getRSItem(Filters.Items.idEquals(772)), "Wield")){
+                if (Equipment.getCount(FairyRing.DRAMEN_STAFFS) == 0){
+                    if (!InteractionHelper.click(InteractionHelper.getRSItem(Filters.Items.idEquals(FairyRing.DRAMEN_STAFFS)), "Wield")){
                         getInstance().log("Could not equip Dramen staff.");
                         break;
                     }
