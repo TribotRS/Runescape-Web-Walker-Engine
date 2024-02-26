@@ -4,7 +4,6 @@ import dax.api_lib.models.Requirement;
 import dax.shared.helpers.InterfaceHelper;
 import dax.shared.helpers.RSItemHelper;
 import dax.shared.helpers.magic.Spell;
-import dax.shared.helpers.magic.SpellBook;
 import dax.shared.helpers.questing.QuestHelper;
 import dax.teleports.teleport_utils.TeleportConstants;
 import dax.teleports.teleport_utils.TeleportLimit;
@@ -333,7 +332,7 @@ public enum Teleport {
 
 	SKILLS_FARMING_GUILD_OUTSIDE (
 			35, new RSTile(1248, 3719, 0),
-			() -> hasBeenToZeah() && WearableItemTeleport.has(WearableItemTeleport.SKILLS_FILTER) && (RSVarBit.get(4895).getValue() < 600 || Skills.SKILLS.FARMING.getActualLevel() < 45),
+			() -> hasBeenToZeah() && WearableItemTeleport.has(WearableItemTeleport.SKILLS_FILTER) && Skills.SKILLS.FARMING.getActualLevel() < 45,
 			() -> teleportWithScrollInterface(WearableItemTeleport.SKILLS_FILTER, ".*Farming.*"),
 			TeleportConstants.LEVEL_30_WILDERNESS_LIMIT
 	),
@@ -402,6 +401,11 @@ public enum Teleport {
 		35, new RSTile(1575, 3531, 0),
 		() -> WearableItemTeleport.has(WearableItemTeleport.XERICS_TALISMAN_FILTER),
 		() -> teleportWithScrollInterface(WearableItemTeleport.XERICS_TALISMAN_FILTER, ".*Xeric's Lookout")
+	),
+	XERICS_HEART(
+			35, new RSTile(1644, 3670, 0),
+			() -> RSVarBit.get(4982).getValue() >= 3 && WearableItemTeleport.has(WearableItemTeleport.XERICS_TALISMAN_FILTER),
+			() -> teleportWithScrollInterface(WearableItemTeleport.XERICS_TALISMAN_FILTER, ".*Xeric's Heart")
 	),
 
 	WEST_ARDOUGNE_TELEPORT_TAB(
@@ -549,7 +553,7 @@ public enum Teleport {
 
 	SALVE_GRAVEYARD_TAB(
 		35, new RSTile(3432, 3460, 0),
-		() -> Inventory.getCount("Salve graveyard teleport") > 0,
+		() -> Game.getSetting(302) >= 61 && Inventory.getCount("Salve graveyard teleport") > 0,
 		() -> RSItemHelper.click("Salve graveyard t.*", "Break")
 	),
 
@@ -747,7 +751,7 @@ public enum Teleport {
 
 	LUMBRIDGE_HOME_TELEPORT(
 			150, new RSTile(3223, 3218, 0),
-			() -> canUseHomeTeleport() && SpellBook.getCurrentSpellBook() == SpellBook.Type.STANDARD,
+			Spell.LUMBRIDGE_HOME_TELEPORT::canUse,
 			() -> {
 				final RSTile myPos = Player.getPosition();
 				return selectSpell("Lumbridge Home Teleport", "Cast") && Timing.waitCondition(() ->  !Player.getRSPlayer().isInCombat() &&
@@ -758,7 +762,7 @@ public enum Teleport {
 
 	ARCEUUS_HOME_TELEPORT(
 			150, new RSTile(1712, 3883, 0),
-			() -> canUseHomeTeleport() && SpellBook.getCurrentSpellBook() == SpellBook.Type.ARCEUUS,
+			Spell.ARCEUUS_HOME_TELEPORT::canUse,
 			() -> {
 				final RSTile myPos = Player.getPosition();
 				return selectSpell("Arceuus Home Teleport", "Cast") && Timing.waitCondition(() -> !Player.getRSPlayer().isInCombat() &&
@@ -768,7 +772,7 @@ public enum Teleport {
 
 	EDGEVILLE_HOME_TELEPORT(
 			150, new RSTile(3087, 3496, 0),
-			() -> canUseHomeTeleport() && SpellBook.getCurrentSpellBook() == SpellBook.Type.ANCIENT,
+			Spell.EDGEVILLE_HOME_TELEPORT::canUse,
 			() -> {
 				final RSTile myPos = Player.getPosition();
 				return selectSpell("Edgeville Home Teleport", "Cast") && Timing.waitCondition(() ->  !Player.getRSPlayer().isInCombat() &&
@@ -778,7 +782,7 @@ public enum Teleport {
 
 	LUNAR_HOME_TELEPORT(
 			150, new RSTile(2095, 3913, 0),
-			() -> canUseHomeTeleport() && SpellBook.getCurrentSpellBook() == SpellBook.Type.LUNAR,
+			Spell.LUNAR_HOME_TELEPORT::canUse,
 			() -> {
 				final RSTile myPos = Player.getPosition();
 				return selectSpell("Lunar Home Teleport", "Cast") && Timing.waitCondition(() ->  !Player.getRSPlayer().isInCombat() &&
@@ -1003,19 +1007,16 @@ public enum Teleport {
 		return RSVarBit.get(4897).getValue() > 0;
 	}
 
-	private static boolean canUseHomeTeleport(){
-		return !Player.getRSPlayer().isInCombat() &&
-				((long) Game.getSetting(892) * 60 * 1000) + (30 * 60 * 1000) < Timing.currentTimeMillis();
-	}
-
-	private static boolean canUseMinigameTeleport(){
-		if(RSVarBit.get(14022).getValue() == 1)//can't minigame teleport when we are at PvP Arena
+	private static boolean canUseMinigameTeleport() {
+		if (RSVarBit.get(14022).getValue() == 1)//can't minigame teleport when we are at PvP Arena
 			return false;
-		if(RSVarBit.get(541).getValue() == 1)
+		if (RSVarBit.get(541).getValue() == 1)
 			return false;
-		if(Game.isInInstance())
+		if (Game.isInInstance())
 			return false;
 		return !Player.getRSPlayer().isInCombat() &&
 				((long) Game.getSetting(888) * 60 * 1000) + (20 * 60 * 1000) < Timing.currentTimeMillis();
 	}
+
+
 }

@@ -11,7 +11,6 @@ import dax.walker_engine.interaction_handling.NPCInteraction;
 import dax.walker_engine.navigation_utils.fairyring.FairyRing;
 import org.tribot.api.General;
 import org.tribot.api.ScriptCache;
-import org.tribot.api.types.generic.Filter;
 import org.tribot.api.util.Sorting;
 import org.tribot.api2007.*;
 import org.tribot.api2007.ext.Filters;
@@ -100,7 +99,8 @@ public class NavigationSpecialCase implements Loggable {
         KALPHITE_TUNNEL_INSIDE (3483, 9510, 2),
 
         DWARF_CARTS_GE (3141, 3504, 0),
-        DWARFS_CARTS_KELDAGRIM (2922, 10170, 0),
+        DWARF_CARTS_KELDAGRIM(2922, 10170, 0),
+        DWARF_CARTS_KELDAGRIM_ARRIVE(2909, 10174 ,0),
 
         BRIMHAVEN_DUNGEON_SURFACE (2744, 3152, 0),
         BRIMHAVEN_DUNGEON (2713, 9564, 0),
@@ -299,6 +299,46 @@ public class NavigationSpecialCase implements Loggable {
 
         STRANGLEWOOD_ENTRY_ENTRANCE(1146, 3433, 0),
         STRANGLEWOOD_ENTRY_EXIT(1149,3444,0),
+
+        GIANT_MOLE_HOLE(2996, 3377, 0),
+        GIANT_MOLE_ENTRANCE(1752, 5237, 0),
+
+        DWARVEN_BOATMAN_RELLEKKA(2838, 10127, 0),
+        DWARVEN_BOATMAN_KELDAGRIM(2888, 10226, 0),
+
+        DWARVEN_FERRYMAN_1_SOUTH(2838, 10127, 0),
+        DWARVEN_FERRYMAN_1_NORTH(2837, 10143, 0),
+
+        DWARVEN_FERRYMAN_2_SOUTH(2863, 10127, 0),
+        DWARVEN_FERRYMAN_2_NORTH(2854, 10143, 0),
+
+        KHAZARD_BATTLEMENT_ENTRANCE(2509, 3252, 0),
+        KHAZARD_BATTLEMENT_LANDING(2509, 3254, 0),
+        
+        MOUNT_KARUULM_BOTTOM(1324, 3777, 0),
+        MOUNT_KARUULM_MIDDLE_TO_BOTTOM(1324, 3785 , 0),
+        MOUNT_KARUULM_MIDDLE_TO_TOP(1324, 3787 , 0),
+        MOUNT_KARUULM_TOP(1324, 3795 , 0),
+
+        DEATH_PLATEAU_ROCKS_1_W(2877, 3622, 0),
+        DEATH_PLATEAU_ROCKS_1_E(2880, 3622, 0),
+
+        MOUNTAIN_GUIDE_MOUNT_QUIDAMORTEM(1275, 3557, 0),
+        MOUNTAIN_GUIDE_SOUTH_OF_QUIDAMORTEM(1272, 3477, 0),
+        MOUNTAIN_GUIDE_WALL(1401, 3536, 0),
+
+        ZEAH_MINECART_ARCEUUS(1670, 3833, 0),
+        ZEAH_MINECART_FARMING_GUILD(1218, 3737, 0),
+        ZEAH_MINECART_HOSIDIUS_SOUTH(1808, 3479, 0),
+        ZEAH_MINECART_HOSIDIUS_WEST(1655, 3543, 0),
+        ZEAH_MINECART_KINGSTOWN(1699, 3660, 0),
+        ZEAH_MINECART_KOUREND_WOODLAND(1572, 3466, 0),
+        ZEAH_MINECART_LOVAKENGJ(1518, 3733, 0),
+        ZEAH_MINECART_MOUNT_QUIDAMORTEM(1255, 3548, 0),
+        ZEAH_MINECART_NORTHERN_TUNDRAS(1648, 3931, 0),
+        ZEAH_MINECART_PORT_PISCARILIUS(1761, 3710, 0),
+        ZEAH_MINECART_SHAYZIEN_EAST(1590, 3620, 0),
+        ZEAH_MINECART_SHAYZIEN_WEST(1415, 3577, 0)
         ;
 
         int x, y, z;
@@ -538,24 +578,19 @@ public class NavigationSpecialCase implements Loggable {
                 getInstance().log("Unable to go inside tunnel.");
                 break;
             case DWARF_CARTS_GE:
-                RSObject[] objects = Objects.find(15, Filters.Objects.nameEquals("Train cart").combine(new Filter<RSObject>() {
-                    @Override
-                    public boolean accept(RSObject rsObject) {
-                        return rsObject.getPosition().getY() == 10171;
-                    }
-                }, true));
+            case DWARF_CARTS_KELDAGRIM:
+                RSObject[] objects = Objects.find(15, Filters.Objects.nameEquals("Train cart").and(rsObject -> rsObject.getPosition().getY() == 10171));
                 Sorting.sortByDistance(objects, new RSTile(2935, 10172, 0), true);
                 if (objects.length > 0 && clickObject(objects[0], "Ride", () -> Player.getPosition().getX() == specialLocation.x ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE)){
                     getInstance().log("Rode cart to GE");
                     return true;
                 } else {
-                    getInstance().log("Could not ride card to GE.");
+                    getInstance().log("cart to GE.");
                 }
-
                 break;
 
-            case DWARFS_CARTS_KELDAGRIM:
-                break;
+            case DWARF_CARTS_KELDAGRIM_ARRIVE:
+                return clickObject(Filters.Objects.nameEquals("Trapdoor"), "Travel", () -> Player.getPosition().getY() > 10000 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
 
             case BRIMHAVEN_DUNGEON_SURFACE:
                 if (clickObject(Filters.Objects.nameEquals("Exit"), "Leave", () -> Player.getPosition().getY() < 8000 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE)){
@@ -567,8 +602,7 @@ public class NavigationSpecialCase implements Loggable {
 
             case GNOME_ENTRANCE:
             case GNOME_EXIT:
-                if (clickObject(Filters.Objects.nameEquals("Gate").combine(Filters.Objects.actionsContains("Open"),
-		                true), "Open",
+                if (clickObject(Filters.Objects.nameEquals("Gate").and(Filters.Objects.actionsContains("Open")), "Open",
                         () -> {
                             if (NPCInteraction.isConversationWindowUp()) {
                                 NPCInteraction.handleConversation(NPCInteraction.GENERAL_RESPONSES);
@@ -1154,9 +1188,100 @@ public class NavigationSpecialCase implements Loggable {
                 return clickObject(Filters.Objects.nameEquals("Rowboat"), "Travel",
                         ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
             case STRANGLEWOOD_ENTRY_ENTRANCE:
-            case STRANGLEWOOD_ENTRY_EXIT:
-                return clickObject(Filters.Objects.nameEquals("Entry"), "Enter",
+                return clickObject(Filters.Objects.nameEquals("Entry").and(Filters.Objects.tileEquals(new RSTile(1147,3433,0))), "Enter",
                         ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+            case STRANGLEWOOD_ENTRY_EXIT:
+                return clickObject(Filters.Objects.nameEquals("Entry").and(Filters.Objects.tileEquals(new RSTile(1147,3444,0))), "Enter",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+
+            case GIANT_MOLE_ENTRANCE:
+            case GIANT_MOLE_HOLE:
+                if(Player.getPosition().distanceTo(GIANT_MOLE_HOLE.getRSTile()) >= 2){
+                    if(Walking.walkTo(GIANT_MOLE_HOLE.getRSTile())){
+                        WaitFor.condition(4500, () -> Player.getPosition().distanceTo(GIANT_MOLE_HOLE.getRSTile()) < 2 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+                    }
+                }
+                if(RSItemHelper.click("Spade", "Dig")){
+                    return (WaitFor.condition(4500, () -> Player.getPosition().equals(GIANT_MOLE_ENTRANCE.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE)) == WaitFor.Return.SUCCESS;
+                }
+                break;
+
+            case DWARVEN_BOATMAN_KELDAGRIM:
+            case DWARVEN_BOATMAN_RELLEKKA:
+                return NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Dwarven Boatman"), "Travel") &&
+                        WaitFor.condition(15000,() -> specialLocation.getRSTile().distanceTo(Player.getPosition()) < 10
+                                ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+
+            case DWARVEN_FERRYMAN_1_NORTH:
+            case DWARVEN_FERRYMAN_1_SOUTH:
+            case DWARVEN_FERRYMAN_2_NORTH:
+            case DWARVEN_FERRYMAN_2_SOUTH:
+                return NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Dwarven Ferryman"), "Travel") &&
+                        WaitFor.condition(15000,() -> specialLocation.getRSTile().distanceTo(Player.getPosition()) < 10
+                                ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+
+            case KHAZARD_BATTLEMENT_ENTRANCE:
+            case KHAZARD_BATTLEMENT_LANDING:
+                if(NPCInteraction.isConversationWindowUp() || clickObject(Filters.Objects.nameEquals("Crumbled wall"), "Climb-over",
+                        ()-> NPCInteraction.isConversationWindowUp() ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE)){
+                    NPCInteraction.handleConversation();
+                    return WaitFor.condition(15000, () -> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+                }
+
+            case MOUNT_KARUULM_BOTTOM:
+                return clickObject(Filters.Objects.nameEquals("Rocks").and(o -> o.getPosition().getY() == 3784), "Climb",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+            case MOUNT_KARUULM_MIDDLE_TO_BOTTOM:
+                return clickObject(Filters.Objects.nameEquals("Rocks").and(o -> o.getPosition().getY() == 3778), "Climb",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+            case MOUNT_KARUULM_MIDDLE_TO_TOP:
+                return clickObject(Filters.Objects.nameEquals("Rocks").and(o -> o.getPosition().getY() == 3794), "Climb",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+            case MOUNT_KARUULM_TOP:
+                return clickObject(Filters.Objects.nameEquals("Rocks").and(o -> o.getPosition().getY() == 3788), "Climb",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+
+            case DEATH_PLATEAU_ROCKS_1_E:
+                return clickObject(Filters.Objects.nameEquals("Rocks").and(o -> o.getPosition().getX() == 2878), "Climb",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+            case DEATH_PLATEAU_ROCKS_1_W:
+                return clickObject(Filters.Objects.nameEquals("Rocks").and(o -> o.getPosition().getX() == 2877), "Climb",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+
+            case MOUNTAIN_GUIDE_MOUNT_QUIDAMORTEM:
+                return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Mountain Guide"), new String[]{"Travel"}, new String[]{"Mount Quidamortem."})
+                       && WaitFor.condition(15000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+            case MOUNTAIN_GUIDE_SOUTH_OF_QUIDAMORTEM:
+                return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Mountain Guide"), new String[]{"Travel"}, new String[]{"South of Quidamortem."})
+                       && WaitFor.condition(15000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+            case MOUNTAIN_GUIDE_WALL:
+                return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Mountain Guide"), new String[]{"Travel"}, new String[]{"The Shayzien Outpost."})
+                       && WaitFor.condition(15000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) == WaitFor.Return.SUCCESS;
+
+            case ZEAH_MINECART_ARCEUUS:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.ARCEUUS);
+            case ZEAH_MINECART_FARMING_GUILD:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.FARMING_GUILD);
+            case ZEAH_MINECART_HOSIDIUS_SOUTH:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.HOSIDIUS_SOUTH);
+            case ZEAH_MINECART_HOSIDIUS_WEST:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.HOSIDIUS_WEST);
+            case ZEAH_MINECART_KINGSTOWN:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.KINGSTOWN);
+            case ZEAH_MINECART_KOUREND_WOODLAND:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.KOUREND_WOODLAND);
+            case ZEAH_MINECART_LOVAKENGJ:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.LOVAKENGJ);
+            case ZEAH_MINECART_MOUNT_QUIDAMORTEM:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.MOUNT_QUIDAMORTEM);
+            case ZEAH_MINECART_NORTHERN_TUNDRAS:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.NORTHERN_TUNDRAS);
+            case ZEAH_MINECART_PORT_PISCARILIUS:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.PORT_PISCARILIUS);
+            case ZEAH_MINECART_SHAYZIEN_EAST:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.SHAYZIEN_EAST);
+            case ZEAH_MINECART_SHAYZIEN_WEST:
+                return ZeahMineCarts.to(ZeahMineCarts.Location.SHAYZIEN_WEST);
         }
 
         return false;
