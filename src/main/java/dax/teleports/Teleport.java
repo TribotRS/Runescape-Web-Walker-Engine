@@ -1,7 +1,6 @@
 package dax.teleports;
 
 import dax.api_lib.models.Requirement;
-import dax.shared.helpers.InterfaceHelper;
 import dax.shared.helpers.RSItemHelper;
 import dax.shared.helpers.magic.Spell;
 import dax.shared.helpers.questing.QuestHelper;
@@ -109,6 +108,18 @@ public enum Teleport {
 		35, new RSTile(2661, 3300, 0),
 		() -> Inventory.getCount("Ardougne teleport") > 0,
 		() -> RSItemHelper.click("Ardougne t.*", "Break")
+	),
+
+	KOUREND_CASTLE_TELEPORT(
+			35, new RSTile(2661, 3300, 0),
+			Spell.KOUREND_TELEPORT::canUse,
+			() -> selectSpell("Kourend Castle Teleport","Cast")
+	),
+
+	KOUREND_CASTLE_TELEPORT_TAB(
+			35, new RSTile(2661, 3300, 0),
+			() -> RSVarBit.get(6027).getValue() >= 11 && Inventory.getCount("Kourend castle teleport") > 0,
+			() -> RSItemHelper.click("Kourend castle.*", "Break")
 	),
 
 	NARDAH_TELEPORT(
@@ -877,7 +888,19 @@ public enum Teleport {
 			35, new RSTile(3239, 6076, 0),
 			() -> POH.PRIFDDINAS.isHouseLocation() && Inventory.getCount("Teleport to house") > 0,
 			() -> RSItemHelper.click("Teleport to house", "Outside")
-	)
+	),
+	CIVITAS_ILLA_FORTIS_TELEPORT(
+			35, new RSTile(1680, 3132, 0),
+			() -> RSVarBit.get(9649).getValue() > 48 && Spell.CIVITAS_ILLA_FORTIS.canUse(),
+			() -> Spell.CIVITAS_ILLA_FORTIS.cast("Cast")
+
+	),
+	CALCIFIED_MOTH(
+			35, new RSTile(1440, 9555, 1),
+			() -> RSVarBit.get(9819).getValue() > 5 && Inventory.getCount("Calcified moth") > 0,
+			() -> RSItemHelper.click("Calcified moth", "Crush")
+	),
+
 
 	;
 
