@@ -58,13 +58,17 @@ public class Charter implements Loggable {
         InterfaceHelper.getAllInterfaces(CHARTER_INTERFACE_MASTER).stream().filter(
 
                 rsInterface -> rsInterface != null
-                && rsInterface.getFontID() == 495
-                && !rsInterface.isHidden()
-                && rsInterface.isTextShadowed())
+                && rsInterface.getModelID() == 17360
+                && !rsInterface.isHidden())
 
                 .collect(Collectors.toList())
-                .forEach(rsInterface -> locations.put(
-		                LocationProperty.stringToLocation(rsInterface.getText()), new Location(rsInterface)));
+                .forEach(rsInterface -> {
+                    String[] actions = rsInterface.getActions();
+                    if(actions == null || actions.length == 0)
+                        return;
+                    locations.put(
+                            LocationProperty.stringToLocation(actions[0]), new Location(rsInterface))
+                });
         return locations;
     }
 
