@@ -78,6 +78,7 @@ public class Charter implements Loggable {
     }
 
     public enum LocationProperty {
+        ALDARIN("Aldarin", new RSTile(1455, 2968, 0)),
         BRIMHAVEN ("Brimhaven", new RSTile(2760, 3237, 0)),
         CATHERBY ("Catherby", new RSTile(2796, 3414, 0)),
         CORSAIR_COVE ("Corsair Cove", new RSTile(2587, 2851, 0)),
@@ -90,7 +91,7 @@ public class Charter implements Loggable {
         PORT_TYRAS ("Port Tyras", new RSTile(2142, 3122, 0)),
         PRIFDDINAS ("Prifddinas", new RSTile(2159, 3329, 0)),
         SHIPYARD ("Shipyard", new RSTile(3001, 3032, 0)),
-        SUNSET_COAST("Sunset Coast", new RSTile(1514, 2871, 0)),
+        SUNSET_COAST("Sunset Coast", new RSTile(1514, 2971, 0)),
         ;
 
         private String name;

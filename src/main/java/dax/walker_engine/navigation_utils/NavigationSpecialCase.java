@@ -348,7 +348,30 @@ public class NavigationSpecialCase implements Loggable {
         LUNAR_ISLE_RETURN_ORB(2101, 3918, 0),
         FREMENNIK_RETURN_ORB_DESTINATION(2631, 3678, 0),
         FREMENNIK_DOCK_TO_ISLAND_OF_STONE(2621, 3689, 0),
-        ISLAND_OF_STONE_LANDING(2472, 3994, 0)
+        ISLAND_OF_STONE_LANDING(2472, 3994, 0),
+
+        QUETZAL_ALDARIN(1390, 2901, 0),
+        QUETZAL_CAM_TORUM_ENTRANCE(1446, 3108, 0),
+        QUETZAL_CIVITAS_ILLA_FORTIS(1696, 3140, 0),
+        QUETZAL_COLOSSAL_WYRM_REMAINS(1670, 2934, 0),
+        //QUETZAL_FORTIS_COLOSSEUM(),
+        QUETZAL_OUTER_FORTIS(1700, 3035, 0),
+        QUETZAL_QUETZACALLI_GORGE(1510, 3222, 0),
+        QUETZAL_HUNTER_GUILD(1585, 3053, 0),
+        QUETZAL_SALVAGER_OUTLOOK(1614, 3300, 0),
+        QUETZAL_SUNSET_COAST(1548, 2995, 0),
+        QUETZAL_THE_TEOMAT(1437, 3171, 0),
+
+        ALDARIN_SHIP(1442, 2977, 0),
+        VARLAMORE_SHIP(1494, 2985, 0),
+
+        MIXOLOGY_ENTRANCE(1389, 2918, 0),
+        MIXOLOGY_EXIT(1388, 9313, 0),
+
+        ANCIENT_CAVERN_WHIRLPOOL(2511, 3511, 0),
+        ANCIENT_CAVERN_ENTRANCE(1763, 5366, 1),
+        ANCIENT_CAVERN_AGED_LOG(1761, 5361, 0),
+        ANCIENT_CAVERN_EXIT(2531, 3446, 0)
         ;
 
         int x, y, z;
@@ -1329,6 +1352,45 @@ public class NavigationSpecialCase implements Loggable {
             case ISLAND_OF_STONE_LANDING:
                 return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Haskell"), new String[]{"Island of Stone", "Rellekka"}, new String[]{})
                         && WaitFor.condition(15000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != null;
+            case QUETZAL_ALDARIN:
+                return Quetzal.to(Quetzal.Location.ALDARIN);
+            case QUETZAL_CAM_TORUM_ENTRANCE:
+                return Quetzal.to(Quetzal.Location.CAM_TORUM_ENTRANCE);
+            case QUETZAL_CIVITAS_ILLA_FORTIS:
+                return Quetzal.to(Quetzal.Location.CIVITAS_ILLA_FORTIS);
+            case QUETZAL_COLOSSAL_WYRM_REMAINS:
+                return Quetzal.to(Quetzal.Location.COLOSSAL_WYRM_REMAINS);
+            case QUETZAL_OUTER_FORTIS:
+                return Quetzal.to(Quetzal.Location.OUTER_FORTIS);
+            case QUETZAL_QUETZACALLI_GORGE:
+                return Quetzal.to(Quetzal.Location.QUETZACALLI_GORGE);
+            case QUETZAL_HUNTER_GUILD:
+                return Quetzal.to(Quetzal.Location.HUNTER_GUILD);
+            case QUETZAL_SALVAGER_OUTLOOK:
+                return Quetzal.to(Quetzal.Location.SALVAGER_OUTLOOK);
+            case QUETZAL_SUNSET_COAST:
+                return Quetzal.to(Quetzal.Location.SUNSET_COAST);
+            case QUETZAL_THE_TEOMAT:
+                return Quetzal.to(Quetzal.Location.THE_TEOMAT);
+
+            case VARLAMORE_SHIP:
+            case ALDARIN_SHIP:
+                return NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Antonia"), "Travel")
+                        && WaitFor.condition(10000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != null;
+
+            case MIXOLOGY_ENTRANCE:
+                return clickObject(Filters.Objects.nameEquals("Staircase"), "Climb-up",
+                        ()-> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+            case MIXOLOGY_EXIT:
+                return clickObject(Filters.Objects.nameEquals("Staircase").and(Filters.Objects.actionsEquals("Climb-down")), "Climb-down",
+                        ()-> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE);
+
+            case ANCIENT_CAVERN_ENTRANCE:
+                return clickObject(Filters.Objects.nameEquals("Whirlpool").and(Filters.Objects.actionsEquals("Dive in")), "Dive in",
+                        ()-> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE, General.random(12000, 15000));
+            case ANCIENT_CAVERN_EXIT:
+                return clickObject(Filters.Objects.nameEquals("Whirlpool").and(Filters.Objects.actionsEquals("Dive in")), "Dive in",
+                        ()-> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE, General.random(12000, 15000));
 
         }
 
@@ -1336,7 +1398,7 @@ public class NavigationSpecialCase implements Loggable {
     }
     public static boolean handleZeahBoats(String locationOption){
         String travelOption = "Travel";
-        RSNPC[] npcs = NPCs.find("Veos","Captain Magoro");
+        RSNPC[] npcs = NPCs.find("Veos","Captain Magoro", "Cabin Boy Herbert");
         if(npcs.length > 0){
             String[] actions = npcs[0].getActions();
             if(actions != null){
@@ -1354,7 +1416,7 @@ public class NavigationSpecialCase implements Loggable {
                 }
             }
         }
-        if(NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Veos", "Captain Magoro"),new String[]{travelOption})){
+        if(NPCInteraction.clickNpc(Filters.NPCs.nameEquals("Veos", "Captain Magoro",  "Cabin Boy Herbert"),new String[]{travelOption})){
             RSTile current = Player.getPosition();
             if (WaitFor.condition(8000, () -> (ShipUtils.isOnShip() || Player.getPosition().distanceTo(current) > 20) ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != WaitFor.Return.SUCCESS) {
                 return false;
@@ -1426,6 +1488,18 @@ public class NavigationSpecialCase implements Loggable {
             return false;
         }
         return InteractionHelper.click(objects[0], action, condition);
+    }
+
+    public static boolean clickObject(Predicate<RSObject> filter, String action, WaitFor.Condition condition, int timeout) {
+        return clickObject(filter, new String[]{action}, condition, timeout);
+    }
+
+    public static boolean clickObject(Predicate<RSObject> filter, String[] action, WaitFor.Condition condition, int timeout){
+        RSObject[] objects = Objects.findNearest(15, filter);
+        if (objects.length == 0){
+            return false;
+        }
+        return InteractionHelper.click(objects[0], action, condition, timeout);
     }
 
 
