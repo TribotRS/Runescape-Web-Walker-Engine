@@ -156,9 +156,11 @@ public class NavigationSpecialCase implements Loggable {
 
         FAIRY_RING_ABYSSAL_AREA(3059, 4875, 0),
         FAIRY_RING_ABYSSAL_NEXUS(3037, 4763, 0),
+        FAIRY_RING_ALDARIN(1359, 2942, 0),
         FAIRY_RING_APE_ATOLL(2740, 2738, 0),
         FAIRY_RING_ARCEUUS_LIBRARY(1639, 3868, 0),
         FAIRY_RING_ARDOUGNE_ZOO(2635, 3266, 0),
+        FAIRY_RING_AUBURNVALE(1429, 3324, 0),
         FAIRY_RING_AVIUM_SAVANNAH(1651, 3011, 0),
         FAIRY_RING_CANIFIS(3447, 3470, 0),
         FAIRY_RING_CHASM_OF_FIRE(1455, 3658, 0),
@@ -172,6 +174,7 @@ public class NavigationSpecialCase implements Loggable {
         FAIRY_RING_HAUNTED_WOODS(3597, 3495, 0),
         FAIRY_RING_HAZELMERE(2682, 3081, 0),
         FAIRY_RING_ISLAND_SOUTHEAST_ARDOUGNE(2700, 3247, 0),
+        FAIRY_RING_ISLE_OF_SOULS(2266, 2976, 0),
         FAIRY_RING_KALPHITE_HIVE(3251, 3095, 0),
         FAIRY_RING_KARAMJA_KARAMBWAN_SPOT(2900, 3111, 0),
         FAIRY_RING_LEGENDS_GUILD(2740, 3351, 0),
@@ -351,6 +354,7 @@ public class NavigationSpecialCase implements Loggable {
         ISLAND_OF_STONE_LANDING(2472, 3994, 0),
 
         QUETZAL_ALDARIN(1390, 2901, 0),
+        QUETZAL_AUBURNVALE(1411, 3361, 0),
         QUETZAL_CAM_TORUM_ENTRANCE(1446, 3108, 0),
         QUETZAL_CIVITAS_ILLA_FORTIS(1696, 3140, 0),
         QUETZAL_COLOSSAL_WYRM_REMAINS(1670, 2934, 0),
@@ -360,6 +364,7 @@ public class NavigationSpecialCase implements Loggable {
         QUETZAL_HUNTER_GUILD(1585, 3053, 0),
         QUETZAL_SALVAGER_OUTLOOK(1614, 3300, 0),
         QUETZAL_SUNSET_COAST(1548, 2995, 0),
+        QUETZAL_TAL_TEKLAN(1226, 3091, 0),
         QUETZAL_THE_TEOMAT(1437, 3171, 0),
 
         ALDARIN_SHIP(1442, 2977, 0),
@@ -380,6 +385,17 @@ public class NavigationSpecialCase implements Loggable {
 
         LUMBRIDGE_GROUND_FLOOR(3206, 3208, 0),
         LUMBRIDGE_TOP_FLOOR(3205, 3209, 2),
+
+        QUETZ_MOUNTAIN_GUIDE(1486, 3232, 0),
+        AUBURNVALE_MOUNTAIN_GUIDE(1360, 3310, 0),
+
+        ACHILKA_GLOOMTHORN_TRAIL(1400, 3246, 0),
+        ACHILKA_TAL_TEKLAN(1258, 3126, 0),
+        ACHILKA_KASTORI(1390, 3074, 0),
+
+
+        PATERDOMUS_SHORTCUT_E( 3427, 3477, 0),
+        PATERDOMUS_SHORTCUT_W(3424, 3476, 0)
         ;
 
         int x, y, z;
@@ -879,12 +895,16 @@ public class NavigationSpecialCase implements Loggable {
                 return FairyRing.takeFairyRing(FairyRing.Locations.ABYSSAL_AREA);
             case FAIRY_RING_ABYSSAL_NEXUS:
                 return FairyRing.takeFairyRing(FairyRing.Locations.ABYSSAL_NEXUS);
+            case FAIRY_RING_ALDARIN:
+                return FairyRing.takeFairyRing(FairyRing.Locations.ALDARIN);
             case FAIRY_RING_APE_ATOLL:
                 return FairyRing.takeFairyRing(FairyRing.Locations.APE_ATOLL);
             case FAIRY_RING_ARCEUUS_LIBRARY:
                 return FairyRing.takeFairyRing(FairyRing.Locations.ARCEUUS_LIBRARY);
             case FAIRY_RING_ARDOUGNE_ZOO:
                 return FairyRing.takeFairyRing(FairyRing.Locations.ARDOUGNE_ZOO);
+            case FAIRY_RING_AUBURNVALE:
+                return FairyRing.takeFairyRing(FairyRing.Locations.AUBURNVALE);
             case FAIRY_RING_AVIUM_SAVANNAH:
                 return FairyRing.takeFairyRing(FairyRing.Locations.AVIUM_SAVANNAH);
             case FAIRY_RING_CANIFIS:
@@ -911,6 +931,8 @@ public class NavigationSpecialCase implements Loggable {
                 return FairyRing.takeFairyRing(FairyRing.Locations.HAZELMERE);
             case FAIRY_RING_ISLAND_SOUTHEAST_ARDOUGNE:
                 return FairyRing.takeFairyRing(FairyRing.Locations.ISLAND_SOUTHEAST_ARDOUGNE);
+            case FAIRY_RING_ISLE_OF_SOULS:
+                return FairyRing.takeFairyRing(FairyRing.Locations.ISLE_OF_SOULS);
             case FAIRY_RING_KALPHITE_HIVE:
                 return FairyRing.takeFairyRing(FairyRing.Locations.KALPHITE_HIVE);
             case FAIRY_RING_KARAMJA_KARAMBWAN_SPOT:
@@ -1363,6 +1385,8 @@ public class NavigationSpecialCase implements Loggable {
                         && WaitFor.condition(15000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != null;
             case QUETZAL_ALDARIN:
                 return Quetzal.to(Quetzal.Location.ALDARIN);
+            case QUETZAL_AUBURNVALE:
+                return Quetzal.to(Quetzal.Location.AUBURNVALE);
             case QUETZAL_CAM_TORUM_ENTRANCE:
                 return Quetzal.to(Quetzal.Location.CAM_TORUM_ENTRANCE);
             case QUETZAL_CIVITAS_ILLA_FORTIS:
@@ -1379,6 +1403,8 @@ public class NavigationSpecialCase implements Loggable {
                 return Quetzal.to(Quetzal.Location.SALVAGER_OUTLOOK);
             case QUETZAL_SUNSET_COAST:
                 return Quetzal.to(Quetzal.Location.SUNSET_COAST);
+            case QUETZAL_TAL_TEKLAN:
+                return Quetzal.to(Quetzal.Location.TAL_TEKLAN);
             case QUETZAL_THE_TEOMAT:
                 return Quetzal.to(Quetzal.Location.THE_TEOMAT);
 
@@ -1415,6 +1441,27 @@ public class NavigationSpecialCase implements Loggable {
                 return clickObject(Filters.Objects.nameEquals("Staircase"), action,
                         ()-> Player.getPosition().equals(specialLocation.getRSTile()) ?
                                 WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE, General.random(12000, 15000));
+
+            case QUETZ_MOUNTAIN_GUIDE:
+            case AUBURNVALE_MOUNTAIN_GUIDE:
+                return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Mountain Guide"), new String[]{"Follow"}, new String[]{})
+                        && WaitFor.condition(10000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != null;
+
+            case ACHILKA_KASTORI:
+                return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Achilka"), new String[]{"Kastori"}, new String[]{})
+                        && WaitFor.condition(10000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != null;
+            case ACHILKA_GLOOMTHORN_TRAIL:
+                return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Achilka"), new String[]{"Gloomthorn Trail"}, new String[]{})
+                        && WaitFor.condition(10000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != null;
+            case ACHILKA_TAL_TEKLAN:
+                return NPCInteraction.talkTo(Filters.NPCs.nameEquals("Achilka"), new String[]{"Tal Teklan"}, new String[]{})
+                        && WaitFor.condition(10000, () -> Player.getPosition().distanceTo(specialLocation.getRSTile()) < 10 ? WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE) != null;
+
+            case PATERDOMUS_SHORTCUT_E:
+            case PATERDOMUS_SHORTCUT_W:
+                return clickObject(Filters.Objects.nameEquals("Rocks"), "Climb",
+                        ()-> Player.getPosition().equals(specialLocation.getRSTile()) ?
+                                WaitFor.Return.SUCCESS : WaitFor.Return.IGNORE, General.random(6000, 9000));
         }
 
         return false;
